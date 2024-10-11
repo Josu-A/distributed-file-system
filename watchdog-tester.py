@@ -2,29 +2,16 @@
 
 import socket, sys, os, time
 
-from watchdog.events import DirCreatedEvent, DirDeletedEvent, DirModifiedEvent, DirMovedEvent, FileClosedEvent, FileCreatedEvent, FileDeletedEvent, FileModifiedEvent, FileMovedEvent, FileSystemEvent, FileSystemEventHandler
+from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
 
 FILES_PATH = "testing"
 
 class EventHandler(FileSystemEventHandler):
     def on_any_event(self, event: FileSystemEvent) -> None:
-        print("on_any_event: {}".format(event))
-    
-    def on_closed(self, event: FileClosedEvent) -> None:
-        print("on_closed: {}".format(event))   
-    
-    def on_created(self, event: DirCreatedEvent | FileCreatedEvent) -> None:
-        print("on_created: {}".format(event))  
-    
-    def on_deleted(self, event: DirDeletedEvent | FileDeletedEvent) -> None:
-        print("on_deleted: {}".format(event))  
-
-    def on_modified(self, event: DirModifiedEvent | FileModifiedEvent) -> None:
-        print("on_modified: {}".format(event)) 
-
-    def on_moved(self, event: DirMovedEvent | FileMovedEvent) -> None:
-        print("on_moved: {}".format(event))    
+        print("Class '{}', SrcPath '{}', DestPath '{}', EventType '{}', IsDirectory '{}', IsSynthetic '{}'".format(
+            event.__class__.__name__, event.src_path, event.dest_path, event.event_type, event.is_directory, event.is_directory
+        ))
 
 
 if __name__ == "__main__":
