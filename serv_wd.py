@@ -3,7 +3,7 @@
 import socket, sys, os, time
 import szasar
 
-from watchdog.events import DirModifiedEvent, FileModifiedEvent, FileSystemEventHandler
+from watchdog.events import DirDeletedEvent, DirModifiedEvent, DirMovedEvent, FileDeletedEvent, FileModifiedEvent, FileMovedEvent, FileSystemEventHandler
 from watchdog.observers import Observer
 
 PORT = szasar.WATCHDOG_PORT
@@ -32,6 +32,20 @@ class EventHandler(FileSystemEventHandler):
             file_size = os.path.getsize(file_path)
             if os.path.exists(file_path):
                 message = f"FIMD{file_path}?{file_size}\r\n"
+                self.dialog.sendall(message.encode("ascii"))
+
+    def on_deleted(self, event: DirDeletedEvent | FileDeletedEvent) -> None:
+        if isinstance(event, FileDeletedEvent):
+            file_path = event.src_path
+            message = f"FIDL{file_path}\r\n"
+            self.dialog.sendall(message.encode("ascii"))
+
+    def on_moved(self, event: DirMovedEvent | FileMovedEvent) -> None:
+        if isinstance(event, FileMovedEvent):
+            file_path_src = event.src_path
+            file_path_dest = event.dest_path
+            if os.path.exists(file_path_dest):
+                message = f"FIMV{file_path_src}?{file_path_dest}\r\n"
                 self.dialog.sendall(message.encode("ascii"))
 
 
