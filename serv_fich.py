@@ -25,22 +25,7 @@ def session( s ):
 		if not message:
 			return
 
-		if message.startswith( szasar.Command.List ):
-			if state != State.Main:
-				sendER( s )
-				continue
-			try:
-				message = "OK\r\n"
-				for filename in os.listdir( FILES_PATH ):
-					filesize = os.path.getsize( os.path.join( FILES_PATH, filename ) )
-					message += "{}?{}\r\n".format( filename, filesize )
-				message += "\r\n"
-			except:
-				sendER( s, 2 )
-			else:
-				s.sendall( message.encode( "ascii" ) )
-
-		elif message.startswith( szasar.Command.Upload ):
+		if message.startswith( szasar.Command.Upload ):
 			if state != State.Main:
 				sendER( s )
 				continue
@@ -63,8 +48,9 @@ def session( s ):
 			state = State.Main
 			try:
 				with open( os.path.join( FILES_PATH, filename), "wb" ) as f:
-					filedata = szasar.recvall( s, filesize )
-					f.write( filedata )
+					if filesize > 0:
+						filedata = szasar.recvall( s, filesize )
+						f.write( filedata )
 			except:
 				sendER( s, 5 )
 			else:

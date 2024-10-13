@@ -3,7 +3,7 @@
 import socket, sys, os, time
 import szasar
 
-from watchdog.events import DirCreatedEvent, FileCreatedEvent, FileSystemEvent, FileSystemEventHandler
+from watchdog.events import DirCreatedEvent, FileCreatedEvent, FileSystemEventHandler
 from watchdog.observers import Observer
 
 PORT = 6013
@@ -29,17 +29,15 @@ class EventHandler(FileSystemEventHandler):
     def on_created(self, event: DirCreatedEvent | FileCreatedEvent) -> None:
         if isinstance(event, FileCreatedEvent):
             file_path = event.src_path
-            if os.path.exists(file_path) and os.path.getsize(file_path) == 0:
-                message = f"EFCR{file_path}\r\n"
+            file_size = os.path.getsize(file_path)
+            if os.path.exists(file_path):
+                message = f"FICR{file_path}?{file_size}\r\n"
                 self.dialog.sendall(message.encode("ascii"))
-
-    def on_any_event(self, event: FileSystemEvent) -> None:
-        print(event)
 
 
 def session(s: socket.socket) -> None:
     state = State.Main
-    
+
     event_handler = EventHandler(s)
     observer = Observer()
     observer.schedule(event_handler, FILES_PATH, recursive=True)
