@@ -1,144 +1,149 @@
+<div id="#top"></div>
+
 # Distributed File System
 
-## Test cases
+<details>
+    <summary>Table of Contents</summary>
+    <ol>
+        <li><a href="#introduction">Introduction</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#installation">Installation</a>
+            <ol>
+                <li><a href="#remote-machine">Remote machine</a>
+                <li><a href="#client">Client</a>
+            </ol>
+        </li>
+        <li><a href="#usage">Usage</a>
+            <ol>
+                <li><a href="#usage-remote-machine">Remote machine</a>
+                <li><a href="#usage-client">Client</a>
+            </ol>
+        </li>
+        <li><a href="#test-cases-used-to-evaluate">Test cases used to evaluate</a></li>
+    </ol>
+</details>
 
-```bash
-touch f1
-cp /etc/passwd .
-head passwd >f2
-echo "Hello" >>f2
-nano f2 + add some text + save the file (without exiting) + .......... + add some more text + exit nano saving the last changes to the file
-rm f1
-mv f2 f3
-touch passwd
-mkdir dir1
-rmdir dir1 (assuming dir1 is empty)
+## Introduction
+
+This project implements a distributed file system that allows the user to sync a local folder with a remote one, granting the ability to make an always up-to-date backup seamlessly.
+
+<p align="right">(<a href="#top">go to top</a>)</p>
+
+## Features
+
+- File creation, deletion, and modification
+- Directory creation and deletion
+- Data consistency and reliability
+- File size limits
+
+<p align="right">(<a href="#top">go to top</a>)</p>
+
+## Installation
+
+To install and set up the distributed file system, follow these steps:
+
+<p align="right">(<a href="#top">go to top</a>)</p>
+
+### <span id="installation-remote-machine"></span> Remote machine
+
+1. Clone the repository:
+    ```console
+    $ git clone https://github.com/Josu-A/distributed-file-system
+    $ cd distributed-file-system
+    ```
+
+2. Set the port the server will be running at by modifying the `SERVER_PORT` variable inside the `szasar.py` utility file:
+    ```python
+    SERVER_PORT = 6012
+    ```
+
+3. Change the directory that will store the uploaded files by modifying the `FILES_PATH` inside the `serv_fich.py` file.
+    ```python
+    FILES_PATH = "server_files/"
+    ```
+
+<p align="right">(<a href="#top">go to top</a>)</p>
+
+### <span id="installation-client"></span> Client
+
+1. Clone the repository:
+    ```console
+    $ git clone https://github.com/Josu-A/distributed-file-system
+    $ cd distributed-file-system
+    ```
+
+2. Install the required dependencies:
+    ```console
+    $ pip install -r requirements.txt
+    ```
+
+3. Set the port used by the server which was previously set by changing the `SERVER_PORT` variable inside the `szasar.py` utility file:
+    ```python
+    SERVER_PORT = 6012
+    ```
+
+4. Set the port the watchdog server will be running at by modifying the `WATCHDOG_PORT` variable inside the `szasar.py` utility file:
+    ```python
+    WATCHDOG_PORT = 6013
+    ```
+
+5. Set the address that the remote server is located by modifying the `SERVER_FILES` variable inside the `cli_fich.py` file.
+    ```python
+    SERVER_FILES = 'localhost'
+    ```
+
+6. Change the directory to be tracked by modifying the `CLIENT_FILES_PATH` inside the `szasar.py` file.
+    ```python
+    CLIENT_FILES_PATH = "server_files/"
+    ```
+
+<p align="right">(<a href="#top">go to top</a>)</p>
+
+## Usage
+
+To start the distributed file system, run the following command on each node:
+
+<p align="right">(<a href="#top">go to top</a>)</p>
+
+### <span id="usage-remote-machine"></span> Remote server
+
+Run the server:
+
+```console
+$ python serv_fich.py
 ```
 
-## Events
+<p align="right">(<a href="#top">go to top</a>)</p>
 
-### touch f1
+### <span id="usage-client"></span> Client
 
-```
-Class 'FileCreatedEvent', SrcPath 'testing/a', DestPath '', EventType 'created', IsDirectory 'False', IsSynthetic 'False'
-Class 'DirModifiedEvent', SrcPath 'testing', DestPath '', EventType 'modified', IsDirectory 'True', IsSynthetic 'True'
-Class 'FileOpenedEvent', SrcPath 'testing/a', DestPath '', EventType 'opened', IsDirectory 'False', IsSynthetic 'False'
-Class 'FileModifiedEvent', SrcPath 'testing/a', DestPath '', EventType 'modified', IsDirectory 'False', IsSynthetic 'False'
-Class 'FileClosedEvent', SrcPath 'testing/a', DestPath '', EventType 'closed', IsDirectory 'False', IsSynthetic 'False'
-Class 'DirModifiedEvent', SrcPath 'testing', DestPath '', EventType 'modified', IsDirectory 'True', IsSynthetic 'True'
+Run the watchdog local server:
+
+```console
+$ python serv_wd.py
 ```
 
-### cp /etc/passwd .
+And then, run the client:
 
-```
-Class 'FileCreatedEvent', SrcPath 'testing/passwd', DestPath '', EventType 'created', IsDirectory 'False', IsSynthetic 'False'
-Class 'DirModifiedEvent', SrcPath 'testing', DestPath '', EventType 'modified', IsDirectory 'True', IsSynthetic 'True'
-Class 'FileOpenedEvent', SrcPath 'testing/passwd', DestPath '', EventType 'opened', IsDirectory 'False', IsSynthetic 'False'
-Class 'FileModifiedEvent', SrcPath 'testing/passwd', DestPath '', EventType 'modified', IsDirectory 'False', IsSynthetic 'False'
-Class 'FileClosedEvent', SrcPath 'testing/passwd', DestPath '', EventType 'closed', IsDirectory 'False', IsSynthetic 'False'
-Class 'DirModifiedEvent', SrcPath 'testing', DestPath '', EventType 'modified', IsDirectory 'True', IsSynthetic 'True'
+```console
+$ python cli_fich.py
 ```
 
-### head passwd >f2
+<p align="right">(<a href="#top">go to top</a>)</p>
 
-```
-Class 'FileCreatedEvent', SrcPath 'testing/f2', DestPath '', EventType 'created', IsDirectory 'False', IsSynthetic 'False'
-Class 'DirModifiedEvent', SrcPath 'testing', DestPath '', EventType 'modified', IsDirectory 'True', IsSynthetic 'True'
-Class 'FileOpenedEvent', SrcPath 'testing/f2', DestPath '', EventType 'opened', IsDirectory 'False', IsSynthetic 'False'
-Class 'FileOpenedEvent', SrcPath 'testing/passwd', DestPath '', EventType 'opened', IsDirectory 'False', IsSynthetic 'False'
-Class 'FileClosedNoWriteEvent', SrcPath 'testing/passwd', DestPath '', EventType 'closed_no_write', IsDirectory 'False', IsSynthetic 'False'
-Class 'FileModifiedEvent', SrcPath 'testing/f2', DestPath '', EventType 'modified', IsDirectory 'False', IsSynthetic 'False'
-Class 'FileClosedEvent', SrcPath 'testing/f2', DestPath '', EventType 'closed', IsDirectory 'False', IsSynthetic 'False'
-Class 'DirModifiedEvent', SrcPath 'testing', DestPath '', EventType 'modified', IsDirectory 'True', IsSynthetic 'True'
-```
+## Test cases used to evaluate
 
-### echo "Hello" >>f2
-
-```
-Class 'FileOpenedEvent', SrcPath 'testing/f2', DestPath '', EventType 'opened', IsDirectory 'False', IsSynthetic 'False'
-Class 'FileModifiedEvent', SrcPath 'testing/f2', DestPath '', EventType 'modified', IsDirectory 'False', IsSynthetic 'False'
-Class 'FileClosedEvent', SrcPath 'testing/f2', DestPath '', EventType 'closed', IsDirectory 'False', IsSynthetic 'False'
-Class 'DirModifiedEvent', SrcPath 'testing', DestPath '', EventType 'modified', IsDirectory 'True', IsSynthetic 'True'
+```console
+$ touch f1
+$ cp /etc/passwd .
+$ head passwd >f2
+$ echo "Hello" >>f2
+$ nano f2 # + add some text + save the file (without exiting) + .......... + add some more text + exit nano saving the last changes to the file
+$ rm f1
+$ mv f2 f3
+$ touch passwd
+$ mkdir dir1
+$ rmdir dir1 # (assuming dir1 is empty)
 ```
 
-### nano f2 + add some text + save the file (without exiting) + .......... + add some more text + exit nano saving the last changes to the file
-
-```
-Class 'FileCreatedEvent', SrcPath 'testing/.f2.swp', DestPath '', EventType 'created', IsDirectory 'False', IsSynthetic 'False'
-Class 'DirModifiedEvent', SrcPath 'testing', DestPath '', EventType 'modified', IsDirectory 'True', IsSynthetic 'True'
-Class 'FileOpenedEvent', SrcPath 'testing/.f2.swp', DestPath '', EventType 'opened', IsDirectory 'False', IsSynthetic 'False'
-Class 'FileModifiedEvent', SrcPath 'testing/.f2.swp', DestPath '', EventType 'modified', IsDirectory 'False', IsSynthetic 'False'
-Class 'FileClosedEvent', SrcPath 'testing/.f2.swp', DestPath '', EventType 'closed', IsDirectory 'False', IsSynthetic 'False'
-Class 'DirModifiedEvent', SrcPath 'testing', DestPath '', EventType 'modified', IsDirectory 'True', IsSynthetic 'True'
-Class 'FileOpenedEvent', SrcPath 'testing/f2', DestPath '', EventType 'opened', IsDirectory 'False', IsSynthetic 'False'
-Class 'FileClosedNoWriteEvent', SrcPath 'testing/f2', DestPath '', EventType 'closed_no_write', IsDirectory 'False', IsSynthetic 'False'
-
-Class 'FileDeletedEvent', SrcPath 'testing/.f2.swp', DestPath '', EventType 'deleted', IsDirectory 'False', IsSynthetic 'False'
-Class 'DirModifiedEvent', SrcPath 'testing', DestPath '', EventType 'modified', IsDirectory 'True', IsSynthetic 'True'
-Class 'FileCreatedEvent', SrcPath 'testing/.f2.swp', DestPath '', EventType 'created', IsDirectory 'False', IsSynthetic 'False'
-Class 'DirModifiedEvent', SrcPath 'testing', DestPath '', EventType 'modified', IsDirectory 'True', IsSynthetic 'True'
-Class 'FileOpenedEvent', SrcPath 'testing/.f2.swp', DestPath '', EventType 'opened', IsDirectory 'False', IsSynthetic 'False'
-Class 'FileModifiedEvent', SrcPath 'testing/.f2.swp', DestPath '', EventType 'modified', IsDirectory 'False', IsSynthetic 'False'
-Class 'FileClosedEvent', SrcPath 'testing/.f2.swp', DestPath '', EventType 'closed', IsDirectory 'False', IsSynthetic 'False'
-Class 'DirModifiedEvent', SrcPath 'testing', DestPath '', EventType 'modified', IsDirectory 'True', IsSynthetic 'True'
-
-Class 'FileOpenedEvent', SrcPath 'testing/f2', DestPath '', EventType 'opened', IsDirectory 'False', IsSynthetic 'False'
-Class 'FileModifiedEvent', SrcPath 'testing/f2', DestPath '', EventType 'modified', IsDirectory 'False', IsSynthetic 'False'
-Class 'FileModifiedEvent', SrcPath 'testing/f2', DestPath '', EventType 'modified', IsDirectory 'False', IsSynthetic 'False'
-Class 'FileClosedEvent', SrcPath 'testing/f2', DestPath '', EventType 'closed', IsDirectory 'False', IsSynthetic 'False'
-Class 'DirModifiedEvent', SrcPath 'testing', DestPath '', EventType 'modified', IsDirectory 'True', IsSynthetic 'True'
-
-Class 'FileDeletedEvent', SrcPath 'testing/.f2.swp', DestPath '', EventType 'deleted', IsDirectory 'False', IsSynthetic 'False'
-Class 'DirModifiedEvent', SrcPath 'testing', DestPath '', EventType 'modified', IsDirectory 'True', IsSynthetic 'True'
-Class 'FileCreatedEvent', SrcPath 'testing/.f2.swp', DestPath '', EventType 'created', IsDirectory 'False', IsSynthetic 'False'
-Class 'DirModifiedEvent', SrcPath 'testing', DestPath '', EventType 'modified', IsDirectory 'True', IsSynthetic 'True'
-Class 'FileOpenedEvent', SrcPath 'testing/.f2.swp', DestPath '', EventType 'opened', IsDirectory 'False', IsSynthetic 'False'
-Class 'FileModifiedEvent', SrcPath 'testing/.f2.swp', DestPath '', EventType 'modified', IsDirectory 'False', IsSynthetic 'False'
-Class 'FileClosedEvent', SrcPath 'testing/.f2.swp', DestPath '', EventType 'closed', IsDirectory 'False', IsSynthetic 'False'
-Class 'DirModifiedEvent', SrcPath 'testing', DestPath '', EventType 'modified', IsDirectory 'True', IsSynthetic 'True'
-
-Class 'FileOpenedEvent', SrcPath 'testing/f2', DestPath '', EventType 'opened', IsDirectory 'False', IsSynthetic 'False'
-Class 'FileModifiedEvent', SrcPath 'testing/f2', DestPath '', EventType 'modified', IsDirectory 'False', IsSynthetic 'False'
-Class 'FileModifiedEvent', SrcPath 'testing/f2', DestPath '', EventType 'modified', IsDirectory 'False', IsSynthetic 'False'
-Class 'FileClosedEvent', SrcPath 'testing/f2', DestPath '', EventType 'closed', IsDirectory 'False', IsSynthetic 'False'
-Class 'DirModifiedEvent', SrcPath 'testing', DestPath '', EventType 'modified', IsDirectory 'True', IsSynthetic 'True'
-Class 'FileDeletedEvent', SrcPath 'testing/.f2.swp', DestPath '', EventType 'deleted', IsDirectory 'False', IsSynthetic 'False'
-Class 'DirModifiedEvent', SrcPath 'testing', DestPath '', EventType 'modified', IsDirectory 'True', IsSynthetic 'True'
-```
-
-### rm f1
-
-```
-Class 'FileDeletedEvent', SrcPath 'testing/f1', DestPath '', EventType 'deleted', IsDirectory 'False', IsSynthetic 'False'
-Class 'DirModifiedEvent', SrcPath 'testing', DestPath '', EventType 'modified', IsDirectory 'True', IsSynthetic 'True'
-```
-
-### mv f2 f3
-
-```
-Class 'FileMovedEvent', SrcPath 'testing/f2', DestPath 'testing/f3', EventType 'moved', IsDirectory 'False', IsSynthetic 'False'
-Class 'DirModifiedEvent', SrcPath 'testing', DestPath '', EventType 'modified', IsDirectory 'True', IsSynthetic 'True'
-```
-
-### touch passwd
-
-```
-Class 'FileOpenedEvent', SrcPath 'testing/passwd', DestPath '', EventType 'opened', IsDirectory 'False', IsSynthetic 'False'
-Class 'FileModifiedEvent', SrcPath 'testing/passwd', DestPath '', EventType 'modified', IsDirectory 'False', IsSynthetic 'False'
-Class 'FileClosedEvent', SrcPath 'testing/passwd', DestPath '', EventType 'closed', IsDirectory 'False', IsSynthetic 'False'
-Class 'DirModifiedEvent', SrcPath 'testing', DestPath '', EventType 'modified', IsDirectory 'True', IsSynthetic 'True'
-```
-
-### mkdir dir1
-
-```
-Class 'DirCreatedEvent', SrcPath 'testing/dir1', DestPath '', EventType 'created', IsDirectory 'True', IsSynthetic 'True'
-Class 'DirModifiedEvent', SrcPath 'testing', DestPath '', EventType 'modified', IsDirectory 'True', IsSynthetic 'True'
-```
-
-### rmdir dir1 (assuming dir1 is empty)
-
-```
-Class 'DirDeletedEvent', SrcPath 'testing/dir1', DestPath '', EventType 'deleted', IsDirectory 'True', IsSynthetic 'True'
-Class 'DirModifiedEvent', SrcPath 'testing', DestPath '', EventType 'modified', IsDirectory 'True', IsSynthetic 'True'
-```
+<p align="right">(<a href="#top">go to top</a>)</p>
