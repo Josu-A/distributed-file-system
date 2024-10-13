@@ -72,6 +72,10 @@ To install and set up the distributed file system, follow these steps:
     ```python
     FILES_PATH = "server_files/"
     ```
+    And create the corresponding folder on your file system:
+    ```console
+    # mkdir server_files
+    ```
 
 <p align="right">(<a href="#top">go to top</a>)</p>
 
@@ -105,7 +109,11 @@ To install and set up the distributed file system, follow these steps:
 
 6. Change the directory to be tracked by modifying the `CLIENT_FILES_PATH` inside the `szasar.py` file.
     ```python
-    CLIENT_FILES_PATH = "server_files/"
+    CLIENT_FILES_PATH = "client_files/"
+    ```
+    And create the corresponding folder on your file system:
+    ```console
+    # mkdir client_files
     ```
 
 <p align="right">(<a href="#top">go to top</a>)</p>
