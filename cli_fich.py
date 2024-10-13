@@ -65,42 +65,23 @@ if __name__ == "__main__":
 
     while True:
         # Get option from the watchdog server
-        # option = szasar.recvline( sw ).decode( "ascii" ) ....
+        event = szasar.recvline( sw ).decode("ascii")
 
-        if option == Actions.Upload:
-            filename = input( "Indica el fichero que quieres subir: " )
-            try:
-                filesize = os.path.getsize( filename )
-                with open( filename, "rb" ) as f:
-                    filedata = f.read()
-            except:
-                print( "No se ha podido acceder al fichero {}.".format( filename ) )
+        if event.startswith("EFCR"):
+            filename = event[4:]
+            filesize = 0
+            message = f"{szasar.Command.Upload}{filename}?{filesize}\r\n"
+            sf.sendall(message.encode("ascii"))
+            message = szasar.recvline(sf).decode("ascii")
+            if iserror(message):
                 continue
-
-            message = "{}{}?{}\r\n".format( szasar.Command.Upload, filename, filesize )
-            sf.sendall( message.encode( "ascii" ) )
-            message = szasar.recvline( sf ).decode( "ascii" )
-            if iserror( message ):
-                continue
-
-            message = "{}\r\n".format( szasar.Command.Upload2 )
-            sf.sendall( message.encode( "ascii" ) )
-            sf.sendall( filedata )
-            message = szasar.recvline( sf ).decode( "ascii" )
+            
+            message = f"{szasar.Command.Upload2}\r\n"
+            sf.sendall(message.encode("ascii"))
+            sf.sendall(b'')
+            message = szasar.recvline(sf).decode("ascii")
             if not iserror( message ):
-                print( "El fichero {} se ha enviado correctamente.".format( filename ) )
+                print(f"Empty file {filename} uploaded correctly.")
 
-        elif option == Actions.Delete:
-            filename = input( "Indica el fichero que quieres borrar: " )
-            message = "{}{}\r\n".format( szasar.Command.Delete, filename )
-            sf.sendall( message.encode( "ascii" ) )
-            message = szasar.recvline( sf ).decode( "ascii" )
-            if not iserror( message ):
-                print( "El fichero {} se ha borrado correctamente.".format( filename ) )
 
-        elif option == Actions.Exit:
-            message = "{}\r\n".format( szasar.Command.Exit )
-            sf.sendall( message.encode( "ascii" ) )
-            message = szasar.recvline( sf ).decode( "ascii" )
-            break
     sf.close()
