@@ -6,8 +6,8 @@ import szasar
 from watchdog.events import DirCreatedEvent, FileCreatedEvent, FileSystemEventHandler
 from watchdog.observers import Observer
 
-PORT = 6013
-FILES_PATH = "."
+PORT = szasar.WATCHDOG_PORT
+FILES_PATH = szasar.CLIENT_FILES_PATH
 
 
 class State:

@@ -4,9 +4,10 @@ import socket, sys, os
 import szasar
 
 SERVER_FILES = 'localhost'
-PORT_FILES = 6012
+PORT_FILES = szasar.SERVER_PORT
 SERVER_WD = 'localhost'
-PORT_WD = 6013
+PORT_WD = szasar.WATCHDOG_PORT
+FILES_PATH = szasar.CLIENT_FILES_PATH
 
 ER_MSG = (
     "Correcto.",
@@ -68,13 +69,14 @@ if __name__ == "__main__":
         event = szasar.recvline( sw ).decode("ascii")
 
         if event.startswith("FICR"):
-            filename, filesize = event[4:].split('?')
+            filepath, filesize = event[4:].split('?')
+            filename = filepath.removeprefix(FILES_PATH)
             message = f"{szasar.Command.Upload}{filename}?{filesize}\r\n"
             try:
-                with open( filename, "rb" ) as f:
+                with open( filepath, "rb" ) as f:
                     filedata = f.read()
             except:
-                print(f"Error trying to access the file {filename}.")
+                print(f"Error trying to access the file {filepath}.")
                 continue
 
             sf.sendall(message.encode("ascii"))
@@ -87,7 +89,7 @@ if __name__ == "__main__":
             sf.sendall(filedata)
             message = szasar.recvline(sf).decode("ascii")
             if not iserror( message ):
-                print(f"Empty file {filename} uploaded correctly.")
+                print(f"File {filepath} uploaded correctly.")
 
 
     sf.close()

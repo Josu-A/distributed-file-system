@@ -1,3 +1,7 @@
+CLIENT_FILES_PATH = "client_files/"
+WATCHDOG_PORT = 6013
+SERVER_PORT = 6012
+
 class Command:
 	Upload, Upload2, Delete, Exit = ("UPLO", "UPL2", "DELE", "EXIT")
 
