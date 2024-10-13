@@ -10,22 +10,18 @@ PORT_WD = szasar.WATCHDOG_PORT
 FILES_PATH = szasar.CLIENT_FILES_PATH
 
 ER_MSG = (
-    "Correcto.",
-    "Comando desconocido o inesperado.",
-    "Error al crear la lista de ficheros.",
-    "El fichero es demasiado grande.",
-    "Error al preparar el fichero para subirlo.",
-    "Error al subir el fichero.",
-    "Error al borrar el fichero.",
-    "Error al mover el fichero")
+    "Correct.",
+    "Unkown command.",
+    "File is too big.",
+    "Error preparing file to upload.",
+    "Error uploading file.",
+    "Error deleting file.",
+    "Error moving file.",
+    "Error creating directory.",
+    "Error deleting directory.")
 
 
-class Actions:
-    Upload, Delete, Exit = range(1, 4)
-    Options = ("Subir fichero", "Borrar fichero", "Salir")
-
-
-def iserror(message):
+def iserror(message: str) -> bool:
     if(message.startswith("ER")):
         code = int(message[2:])
         print(ER_MSG[code])
@@ -34,7 +30,7 @@ def iserror(message):
         return False
 
 
-def int2bytes(n):
+def int2bytes(n: int) -> str:
     if n < 1 << 10:
         return str(n) + " B  "
     elif n < 1 << 20:
@@ -118,5 +114,25 @@ if __name__ == "__main__":
             message = szasar.recvline(sf).decode("ascii")
             if not iserror(message):
                 print(f"File {filepath_src} correctly moved to {filepath_dest}.")
+
+        elif event.startswith("DICR"):
+            dirpath_src = event[4:]
+            dirname_src = dirpath_src.removeprefix(FILES_PATH)
+
+            message = f"{szasar.Command.CreateDirectory}{dirname_src}\r\n"
+            sf.sendall(message.encode("ascii"))
+            message = szasar.recvline(sf).decode("ascii")
+            if not iserror(message):
+                print(f"Directory {dirpath_src} created correctly.")
+
+        elif event.startswith("DIDL"):
+            dirpath = event[4:]
+            dirname = dirpath.removeprefix(FILES_PATH)
+
+            message = f"{szasar.Command.DeleteDirectory}{dirname}\r\n"
+            sf.sendall(message.encode("ascii"))
+            message = szasar.recvline(sf).decode("ascii")
+            if not iserror(message):
+                print(f"Directory {dirpath} deleted correctly.")
 
     sf.close()

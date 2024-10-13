@@ -11,13 +11,13 @@ SPACE_MARGIN = 50 * 1 << 20  # 50 MiB
 class State:
 	Main, Uploading = range(2)
 
-def sendOK(s, params=""):
+def sendOK(s: socket.socket, params=""):
 	s.sendall(("OK{}\r\n".format(params)).encode("ascii"))
 
-def sendER(s, code=1):
+def sendER(s: socket.socket, code=1):
 	s.sendall(("ER{}\r\n".format(code)).encode("ascii"))
 
-def session(s):
+def session(s: socket.socket):
 	state = State.Main
 
 	while True:
@@ -32,11 +32,11 @@ def session(s):
 			filename, filesize = message[4:].split('?')
 			filesize = int(filesize)
 			if filesize > MAX_FILE_SIZE:
-				sendER(s, 3)
+				sendER(s, 2)
 				continue
 			svfs = os.statvfs(FILES_PATH)
 			if filesize + SPACE_MARGIN > svfs.f_bsize * svfs.f_bavail:
-				sendER(s, 4)
+				sendER(s, 3)
 				continue
 			sendOK(s)
 			state = State.Uploading
@@ -52,7 +52,7 @@ def session(s):
 						filedata = szasar.recvall(s, filesize)
 						f.write(filedata)
 			except:
-				sendER(s, 5)
+				sendER(s, 4)
 			else:
 				sendOK(s)
 
@@ -64,7 +64,7 @@ def session(s):
 			try:
 				os.remove(os.path.join(FILES_PATH, filename))
 			except:
-				sendER(s, 6)
+				sendER(s, 5)
 			else:
 				sendOK(s)
 
@@ -76,7 +76,31 @@ def session(s):
 			try:
 				os.rename(os.path.join(FILES_PATH, filename_src), os.path.join(FILES_PATH, filename_dest))
 			except:
+				sendER(s, 6)
+			else:
+				sendOK(s)
+
+		elif message.startswith(szasar.Command.CreateDirectory):
+			if state != State.Main:
+				sendER(s)
+				continue
+			dirname = message[4:]
+			try:
+				os.mkdir(os.path.join(FILES_PATH, dirname))
+			except:
 				sendER(s, 7)
+			else:
+				sendOK(s)
+
+		elif message.startswith(szasar.Command.DeleteDirectory):
+			if state != State.Main:
+				sendER(s)
+				continue
+			dirname = message[4:]
+			try:
+				os.rmdir(os.path.join(FILES_PATH, dirname))
+			except:
+				sendER(s, 8)
 			else:
 				sendOK(s)
 

@@ -1,11 +1,13 @@
+import socket
+
 CLIENT_FILES_PATH = "client_files/"
 WATCHDOG_PORT = 6013
 SERVER_PORT = 6012
 
 class Command:
-	Upload, Upload2, Delete, Move, Exit = ("UPLO", "UPL2", "DELE", "MOVE", "EXIT")
+	Upload, Upload2, Delete, Move, CreateDirectory, DeleteDirectory, Exit = ("UPLO", "UPL2", "DELE", "MOVE", "CRDI", "DEDI", "EXIT")
 
-def recvline(s, removeEOL = True):
+def recvline(s: socket.socket, removeEOL = True) -> bytes:
 	line = b''
 	CRreceived = False
 	while True:
@@ -23,7 +25,7 @@ def recvline(s, removeEOL = True):
 		else:
 			CRreceived = False
 
-def recvall(s, size):
+def recvall(s: socket.socket, size: int) -> bytes:
 	message = b''
 	while(len(message) < size):
 		chunk = s.recv(size - len(message))

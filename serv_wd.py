@@ -3,22 +3,18 @@
 import socket, sys, os, time
 import szasar
 
-from watchdog.events import DirDeletedEvent, DirModifiedEvent, DirMovedEvent, FileDeletedEvent, FileModifiedEvent, FileMovedEvent, FileSystemEventHandler
+from watchdog.events import DirCreatedEvent, DirDeletedEvent, DirModifiedEvent, DirMovedEvent, FileCreatedEvent, FileDeletedEvent, FileModifiedEvent, FileMovedEvent, FileSystemEventHandler
 from watchdog.observers import Observer
 
 PORT = szasar.WATCHDOG_PORT
 FILES_PATH = szasar.CLIENT_FILES_PATH
 
 
-class State:
-	Main, Uploading = range(2)
-
-
-def sendOK(s: socket.socket, params = ""):
+def sendOK(s: socket.socket, params = "") -> None:
 	s.sendall(("OK{}\r\n".format(params)).encode("ascii"))
 
 
-def sendER(s: socket.socket, code = 1):
+def sendER(s: socket.socket, code = 1) -> None:
 	s.sendall(("ER{}\r\n".format(code)).encode("ascii"))
 
 
@@ -39,6 +35,10 @@ class EventHandler(FileSystemEventHandler):
             file_path = event.src_path
             message = f"FIDL{file_path}\r\n"
             self.dialog.sendall(message.encode("ascii"))
+        elif isinstance(event, DirDeletedEvent):
+            dir_path = event.src_path
+            message = f"DIDL{dir_path}\r\n"
+            self.dialog.sendall(message.encode("ascii"))
 
     def on_moved(self, event: DirMovedEvent | FileMovedEvent) -> None:
         if isinstance(event, FileMovedEvent):
@@ -48,10 +48,14 @@ class EventHandler(FileSystemEventHandler):
                 message = f"FIMV{file_path_src}?{file_path_dest}\r\n"
                 self.dialog.sendall(message.encode("ascii"))
 
+    def on_created(self, event: DirCreatedEvent | FileCreatedEvent) -> None:
+        if isinstance(event, DirCreatedEvent):
+            dir_path = event.src_path
+            message = f"DICR{dir_path}\r\n"
+            self.dialog.sendall(message.encode("ascii"))
+
 
 def session(s: socket.socket) -> None:
-    state = State.Main
-
     event_handler = EventHandler(s)
     observer = Observer()
     observer.schedule(event_handler, FILES_PATH, recursive=True)
