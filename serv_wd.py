@@ -10,14 +10,6 @@ PORT = szasar.WATCHDOG_PORT
 FILES_PATH = szasar.CLIENT_FILES_PATH
 
 
-def sendOK(s: socket.socket, params = "") -> None:
-	s.sendall(("OK{}\r\n".format(params)).encode("ascii"))
-
-
-def sendER(s: socket.socket, code = 1) -> None:
-	s.sendall(("ER{}\r\n".format(code)).encode("ascii"))
-
-
 class EventHandler(FileSystemEventHandler):
     def __init__(self, dialog: socket.socket):
         self.dialog = dialog
