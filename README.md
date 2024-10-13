@@ -7,6 +7,7 @@
     <ol>
         <li><a href="#introduction">Introduction</a></li>
         <li><a href="#features">Features</a></li>
+        <li><a href="#requirements">Requirements</a></li>
         <li><a href="#installation">Installation</a>
             <ol>
                 <li><a href="#remote-machine">Remote machine</a>
@@ -35,6 +36,16 @@ This project implements a distributed file system that allows the user to sync a
 - Directory creation and deletion
 - Data consistency and reliability
 - File size limits
+
+<p align="right">(<a href="#top">go to top</a>)</p>
+
+## Requirements
+
+This application needs the following programs to run:
+
+- Unix based OS.
+- `python` >= 3.12.1 *(tested)*
+- `pip`: Package installer for python.
 
 <p align="right">(<a href="#top">go to top</a>)</p>
 
