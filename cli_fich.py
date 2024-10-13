@@ -68,7 +68,7 @@ if __name__ == "__main__":
         # Get option from the watchdog server
         event = szasar.recvline( sw ).decode("ascii")
 
-        if event.startswith("FICR"):
+        if event.startswith("FIMD"):
             filepath, filesize = event[4:].split('?')
             filename = filepath.removeprefix(FILES_PATH)
             message = f"{szasar.Command.Upload}{filename}?{filesize}\r\n"

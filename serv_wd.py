@@ -3,7 +3,7 @@
 import socket, sys, os, time
 import szasar
 
-from watchdog.events import DirCreatedEvent, FileCreatedEvent, FileSystemEventHandler
+from watchdog.events import DirModifiedEvent, FileModifiedEvent, FileSystemEventHandler
 from watchdog.observers import Observer
 
 PORT = szasar.WATCHDOG_PORT
@@ -26,12 +26,12 @@ class EventHandler(FileSystemEventHandler):
     def __init__(self, dialog: socket.socket):
         self.dialog = dialog
 
-    def on_created(self, event: DirCreatedEvent | FileCreatedEvent) -> None:
-        if isinstance(event, FileCreatedEvent):
+    def on_modified(self, event: DirModifiedEvent | FileModifiedEvent) -> None:
+        if isinstance(event, FileModifiedEvent):
             file_path = event.src_path
             file_size = os.path.getsize(file_path)
             if os.path.exists(file_path):
-                message = f"FICR{file_path}?{file_size}\r\n"
+                message = f"FIMD{file_path}?{file_size}\r\n"
                 self.dialog.sendall(message.encode("ascii"))
 
 
